@@ -84,7 +84,28 @@ if ( version_compare( $wp_version, '3.9-dev', '>=' ) ) {
 ?>
 
 <style media="screen">
-#login_error, .login .message, #loginform { margin-bottom: 20px; }
+    body #background {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      height: 100%;
+      width: 100%;
+      mix-blend-mode: difference;
+      animation: 5s ease-in-out 0s infinite alternate both running flicker;
+      transition: opacity 0.3s ease 0s;
+    }
+    #background svg {
+      width: 100%;
+      height: 100%;
+    }
+    @keyframes flicker {
+      0% {
+        filter: brightness(1) contrast(1);
+      }
+      100% {
+        filter: brightness(0.7) contrast(2.5);
+      }
+    }
 </style>
 
 <?php
@@ -110,8 +131,23 @@ do_action( 'password_protected_login_head' );
 <body class="login login-password-protected login-action-password-protected-login wp-core-ui">
 
 <div id="login">
-	<h1><a href="<?php echo esc_url( apply_filters( 'password_protected_login_headerurl', home_url( '/' ) ) ); ?>" title="<?php echo esc_attr( apply_filters( 'password_protected_login_headertitle', get_bloginfo( 'name' ) ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
-
+  <section id="background">
+    <svg viewBox="0 0 15 8" preserveAspectRatio="none">
+      <defs>
+        <filter id="filter" width="1" height="1" x="0" y="0">
+          <feTurbulence id="noise" type="fractalNoise" numOctaves="20" baseFrequency="0.2" seed="10"></feTurbulence>
+          <feComposite operator="arithmetic" k1="13" k2="0.2" k3="-3"></feComposite>
+          <feComponentTransfer>
+            <feFuncR type="gamma" amplitude="2" exponent="3" offset="0"></feFuncR>
+            <feFuncG type="gamma" amplitude="1" exponent="4" offset="0"></feFuncG>
+            <feFuncB type="gamma" amplitude="4" exponent="2" offset="0"></feFuncB>
+          </feComponentTransfer>
+        </filter>
+      </defs>
+      <g>
+        <rect style="filter: url('#filter');" width="100" height="100" x="0" y="0"></rect>
+      </g>
+    </svg>
 	<?php do_action( 'password_protected_login_messages' ); ?>
 	<?php do_action( 'password_protected_before_login_form' ); ?>
 
@@ -131,11 +167,12 @@ do_action( 'password_protected_login_head' );
 			<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Log In' ); ?>" tabindex="100" />
 			<input type="hidden" name="password_protected_cookie_test" value="1" />
 			<input type="hidden" name="password-protected" value="login" />
-			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $_REQUEST['redirect_to'] ); ?>" />
+			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '' ); ?>" />
 		</p>
 	</form>
 
 	<?php do_action( 'password_protected_after_login_form' ); ?>
+</section>
 
 </div>
 
